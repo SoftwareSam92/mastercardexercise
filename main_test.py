@@ -5,10 +5,9 @@ pytest_plugins = ('pytest_asyncio',)
 from mock import patch
 from unittest import mock 
 from main import Account, get_account, add_account, accounts
+import main
 
-"""
-The following tests are to test the functionality of the get_account method in main.
-"""
+# The following tests are to test the functionality of the get_account method in main.
 
 """
 Tests getting accounts when there is no data loaded into the application.
@@ -35,3 +34,12 @@ tests accounts with a different id then has been specified.
 async def test_get_account_one_account_wrong_id():
     test = await get_account(0)
     assert test == None
+
+
+# Tests for add_account()
+
+@pytest.mark.asyncio
+async def test_add_account_none_valid():
+    test = await add_account(0, Account(name="test",description="",balance=10,active=False))
+    assert test == Account(name="test",description="",balance=10,active=False)
+    assert accounts == dict({0: Account(name="test",description="",balance=10,active=False)})
