@@ -3,3 +3,4 @@ pydantic
 uvicorn[standard]
 pytest
 pytest_asyncio
+mock
