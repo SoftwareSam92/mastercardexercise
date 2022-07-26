@@ -1,11 +1,12 @@
 import asyncio
-from cmath import e
 import pytest
-pytest_plugins = ('pytest_asyncio',)
+from fastapi import HTTPException
 
 from mock import patch
 from unittest import mock 
-from main import Account, get_account, add_account, delete_account, accounts
+import sys
+sys.path.append("..")
+from main import Account, get_account, add_account, delete_account, read_account, get_health, create_account, remove_account, accounts
 
 # The following tests are to test the functionality of the get_account method in main.
 
@@ -70,3 +71,67 @@ async def test_add_account_add_dup():
 async def test_delete_account_valid():
     assert await delete_account(2)
     assert accounts == {}
+
+
+@pytest.mark.asyncio
+@mock.patch('main.accounts', dict())
+async def test_delete_account_else():
+    assert await delete_account(2) == None
+    assert accounts == {}
+
+
+# Testing endpoints
+
+@pytest.mark.asyncio
+async def test_get_health():
+    assert await get_health(object()) == {'status': True}
+
+@pytest.mark.asyncio
+@mock.patch('main.get_account')
+async def test_get_account(get_account):
+    get_account.return_value = "sample return"
+    assert await read_account(2) == "sample return"
+
+@pytest.mark.asyncio
+@mock.patch('main.get_account')
+async def test_get_account_except(get_account):
+    try:
+        get_account.return_value = None
+        await read_account(2)
+        assert False
+    except HTTPException:
+        assert True
+    
+
+@pytest.mark.asyncio
+@mock.patch('main.add_account')
+async def test_create_account_except(add_account):
+    try:
+        add_account.return_value = None
+        await create_account(0, Account(name='test', description='', balance=10.0, active=False))
+        assert False
+    except HTTPException:
+        assert True
+
+@pytest.mark.asyncio
+@mock.patch('main.add_account')
+async def test_create_account_noexcept(add_account):
+    add_account.return_value = True
+    assert await create_account(0, Account(name='test', description='', balance=10.0, active=False))    
+
+@pytest.mark.asyncio
+@mock.patch('main.delete_account')
+async def test_remove_account_except(delete_account):
+    try:
+        delete_account.return_value = None
+        await remove_account(0)
+        assert False
+    except HTTPException:
+        assert True
+
+@pytest.mark.asyncio
+@mock.patch('main.delete_account')
+async def test_remove_account_noexcept(delete_account):
+    delete_account.return_value = True
+    assert await remove_account(0)
+    
