@@ -34,6 +34,7 @@ async def add_account(account_id: int, account: Account) -> Optional[Account]:
 
 async def delete_account(account_id: int) -> Optional[bool]:
     if account_id in accounts:
+        del accounts[account_id]
         return True
     else:
         return None
@@ -63,8 +64,9 @@ async def create_account(account_id: int, account: Account):
 
 
 @app.delete("/accounts/{account_id}", status_code=200)
-async def remove_account(deleted: Optional[bool]):
-    if deleted is None:
+async def remove_account(account_id: int):
+    res = await delete_account(account_id)
+    if res is None:
         raise HTTPException(status_code=404, detail="Account not found")
     else:
         return {"msg": "Successful"}

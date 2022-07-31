@@ -1,0 +1,7 @@
+fastapi
+pydantic
+uvicorn[standard]
+pytest
+pytest_asyncio
+mock
+coverage
